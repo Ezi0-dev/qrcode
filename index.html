@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR-Code Generator</title>
+</head>
+<body>
+    <div id="input-panel">
+        <input placeholder="Name" id="name" required>
+        <input placeholder="Email" id="email" required>
+        <input placeholder="Twitter" id="twitter">
+        <input placeholder="GitHub" id="github">
+        <button id="cancel">Cancel</button>
+        <button id="create">Create</button>
+    </div>
+
+    <div id="errors"></div>
+
+    <div id="badge-panel" style="display:none">
+        <h2 id="badge-name"></h2>
+        <p id="badge-email"></p>
+        <div id="qrcode"></div>
+        <button id="print" disabled>Print</button>
+
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    
+    <script>
+
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        function validateName(name) {
+            const trimmed = name.trim();
+
+            if (!trimmed) {
+                return { valid: false, error: "Name is required" };
+            }
+
+            const parts = trimmed.split(/\s+/);
+
+            if (parts.length < 2) {
+                return { valid: false, error: "Enter both first and last name"};
+            }
+
+            return { valid: true};
+        }
+
+        function validateTwitter(twitter) {
+            if (!twitter || !twitter.trim()) {
+                return { valid: true }; // Empty is OK
+            }
+
+            const trimmed = twitter.trim();
+
+            if (!trimmed.startsWith('@')) {
+                return { valid: false, error: "Twitter handle must start with a @" };
+            }
+
+            return { valid: true };
+        }
+
+        function validateGitHub(github) {
+            if (!github || !github.trim()) {
+                return { valid: true }; // Empty is OK
+            }
+
+            const trimmed = github.trim();
+
+            const githubRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]){0,38}$/;
+
+            if (!githubRegex.test(trimmed)) {
+                return { valid: false, error: "Invalid GitHub username" };
+            }
+
+            return { valid: true };
+        }
+
+        function validateForm() {
+            const errors = [];
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const twitter = document.getElementById('twitter').value;
+            const github = document.getElementById('github').value;
+
+            const nameCheck = validateName(name);
+
+            if (!nameCheck.valid) errors.push(nameCheck.error);
+
+            if (!email.trim()) {
+                errors.push("Email is required");
+            } else if (!validateEmail(email)) {
+                errors.push("Invalid Email format");
+            }
+
+            const twitterCheck = validateTwitter(twitter);
+
+            if (!twitterCheck.valid) errors.push(twitterCheck.error);
+
+            const githubCheck = validateGitHub(github);
+
+            if (!githubCheck.valid) errors.push(githubCheck.error);
+
+            return errors;
+        }
+
+        function showErrors(errors) {
+            const errorDiv = document.getElementById('errors');
+
+            if (errors.length == 0) {
+                errorDiv.innerHTML = '';
+                errorDiv.style.display = 'none';
+                return; // No errors, stop the function
+            }
+
+            const errorHTML = errors.map(error => `<li>${error}</li>`).join('');
+
+            errorDiv.innerHTML = `<ul>${errorHTML}</ul>`;
+            errorDiv.style.display = 'block';
+        }
+
+        function generateBadge() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const twitter = document.getElementById('twitter').value;
+            const github = document.getElementById('github').value;
+            
+            // Build vCard
+            let vcard = 'BEGIN:VCARD\r\n';
+            vcard += 'VERSION:3.0\r\n';
+            vcard += `FN:${name}\r\n`;
+            vcard += `EMAIL:${email}\r\n`;
+            
+            if (twitter) {
+                vcard += `URL:https://twitter.com/${twitter.replace('@', '')}\r\n`;
+            }
+            
+            if (github) {
+                vcard += `URL:https://github.com/${github}\r\n`;
+            }
+            
+            vcard += 'END:VCARD\r\n';
+            
+            console.log('Generating QR for:', vcard);
+            console.log('Length:', vcard.length);
+            
+            // Update badge display
+            document.getElementById('badge-name').textContent = name;
+            document.getElementById('badge-email').textContent = email;
+
+            // Clear previous QR
+            const qrcodeDiv = document.getElementById('qrcode');
+            qrcodeDiv.innerHTML = '';
+            
+            // Generate QR with canvas (better compatibility)
+            const canvas = document.createElement('canvas');
+            qrcodeDiv.appendChild(canvas);
+
+            try {
+                const qr = qrcode(0, 'M'); // type 0 = auto, error correction M
+                qr.addData(vcard);
+                qr.make();
+                
+                // Render as image (cell size 5)
+                const qrcodeDiv = document.getElementById('qrcode');
+                qrcodeDiv.innerHTML = qr.createImgTag(5);
+                
+                console.log('QR generated successfully!');
+                
+                // Show badge
+                document.getElementById('badge-panel').style.display = 'block';
+                document.getElementById('print').disabled = false;
+                
+            } catch (error) {
+                console.error('QR generation failed:', error);
+                alert('Failed to generate QR: ' + error.message);
+            }
+        }
+
+
+        document.getElementById('create').addEventListener('click', function(e)  {
+            e.preventDefault();
+
+            const errors = validateForm();
+
+            if (errors.length > 0) {
+                showErrors(errors);
+                return; // Dont create badge
+            }
+
+            showErrors([]) // Clear
+            generateBadge();
+        })
+    </script>
+</body>
+</html>

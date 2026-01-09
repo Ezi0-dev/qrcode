@@ -7,22 +7,24 @@
     <title>QR-Code Generator</title>
 </head>
 <body>
-    <div id="input-panel">
-        <input placeholder="Name" id="name" required>
-        <input placeholder="Email" id="email" required>
-        <input placeholder="Twitter" id="twitter">
-        <input placeholder="GitHub" id="github">
-        <button id="cancel">Cancel</button>
-        <button id="create">Create</button>
-    </div>
+    <div class="container">
+        <div id="errors"></div>
 
-    <div id="errors"></div>
+        <div id="input-panel">
+            <input placeholder="Name" id="name" required>
+            <input placeholder="Email" id="email" required>
+            <input placeholder="Twitter" id="twitter">
+            <input placeholder="GitHub" id="github">
+            <button id="cancel">Cancel</button>
+            <button id="create">Create</button>
+        </div>
 
-    <div id="badge-panel">
-        <h2 id="badge-name">fsdfdsfds</h2>
-        <p id="badge-email">fsdfsdfsd</p>
-        <div id="qrcode">dfgssdgfsd</div>
-        <button id="print" disabled>Print</button>
+        <div id="badge-panel">
+            <h2 id="badge-name">fsdfdsfds</h2>
+            <p id="badge-email">fsdfsdfsd</p>
+            <div id="qrcode">dfgssdgfsd</div>
+            <button id="print" disabled>Print</button>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>

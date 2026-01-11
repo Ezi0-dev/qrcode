@@ -7,22 +7,26 @@
     <title>QR-Code Generator</title>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="container">
         <div id="errors"></div>
 
         <div id="input-panel">
-            <input placeholder="Name" id="name" required>
-            <input placeholder="Email" id="email" required>
-            <input placeholder="Twitter" id="twitter">
-            <input placeholder="GitHub" id="github">
-            <button id="cancel">Cancel</button>
+            <h1>QR Badge Generator</h1>
+
+            <input type="text" id="name" placeholder="Full Name (required)" />
+            <input type="email" id="email" placeholder="Email (required)" />
+            <input type="text" id="twitter" placeholder="Twitter (optional)" />
+            <input type="text" id="github" placeholder="GitHub (optional)" />
+
+            <button id="cancel">Reset</button>
             <button id="create">Create</button>
+
         </div>
 
         <div id="badge-panel">
-            <h2 id="badge-name">fsdfdsfds</h2>
-            <p id="badge-email">fsdfsdfsd</p>
-            <div id="qrcode">dfgssdgfsd</div>
+            <h2 id="badge-name"></h2>
+            <p id="badge-email"></p>
+            <div id="qrcode"></div>
             <button id="print" disabled>Print</button>
         </div>
     </div>
@@ -123,7 +127,7 @@
             const errorHTML = errors.map(error => `<li>${error}</li>`).join('');
 
             errorDiv.innerHTML = `<ul>${errorHTML}</ul>`;
-            errorDiv.style.display = 'block';
+            errorDiv.style.display = 'flex';
         }
 
         function generateBadge() {
@@ -175,7 +179,7 @@
                 console.log('QR generated successfully!');
                 
                 // Show badge
-                document.getElementById('badge-panel').style.display = 'block';
+                document.getElementById('badge-panel').style.display = 'flex';
                 document.getElementById('print').disabled = false;
                 
             } catch (error) {
@@ -184,9 +188,11 @@
             }
         }
 
-
         document.getElementById('create').addEventListener('click', function(e)  {
             e.preventDefault();
+            const badgePanel = document.getElementById('badge-panel');
+            const inputPanel = document.getElementById('input-panel');
+            const container = document.getElementById('container');
 
             const errors = validateForm();
 
@@ -197,7 +203,43 @@
 
             showErrors([]) // Clear
             generateBadge();
+
+            container.classList.add('has-badge');
+            badgePanel.classList.add('show');
+            inputPanel.classList.add('show');
         })
+
+        document.getElementById('cancel').addEventListener('click', function() {
+
+            const badgePanel = document.getElementById('badge-panel');
+            const inputPanel = document.getElementById('input-panel');
+
+            document.getElementById('name').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('twitter').value = '';
+            document.getElementById('github').value = '';
+            document.getElementById('print').disabled = true;
+
+            badgePanel.classList.remove('show');
+            inputPanel.classList.remove('show');
+
+            setTimeout(() => {
+                container.classList.remove('has-badge');
+            }, 400);
+
+        showErrors([]);
+        });
+        
+        document.getElementById('print').addEventListener('click', function() {
+            window.print();
+        });
+        
+        document.getElementById('twitter').addEventListener('blur', function() {
+            const value = this.value.trim();
+            if (value && !value.startsWith('@')) {
+                this.value = '@' + value;
+            }
+        });
     </script>
 </body>
 </html>

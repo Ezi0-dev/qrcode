@@ -16,6 +16,15 @@ ul {
     gap: 5px;
 }
 
+h1 {
+    text-align: center;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
 body {
     min-height: 100vh;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -52,6 +61,11 @@ body::before {
     gap: 30px;
     max-width: 1000px;
     width: 100%;
+    transition: grid-template-columns 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.container.has-badge {
+    grid-template-columns: 1fr 1fr; /* Expand to show badge */
 }
 
 #errors {
@@ -80,12 +94,20 @@ body::before {
     padding: 40px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     border: 1px solid rgba(255,255,255,0.3);
+    grid-row: 1;
+    grid-column: 1 / 3; /* Span from column 1 to 3 */
+    justify-self: center; /* Center it horizontally */
+    width: 30rem;
 }
 
 #input-panel {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    z-index: 100;
+    transition: ease 0.15s,
+                transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.15s;
+    justify-content: space-between;
 }
 
 input {
@@ -154,6 +176,25 @@ button {
     text-align: center;
     gap: 20px;
     position: relative;
+
+    /* Start hidden */
+    opacity: 0;
+    transform: translateX(0px) scale(1);
+    transition: opacity 0.9s ease 0.15s,
+                transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.15s;
+    
+    /* Allow grid to collapse */
+    overflow: hidden;
+    min-width: 0;
+}
+
+#badge-panel.show {
+    opacity: 1;
+    transform: translateX(240px) scale(1);
+}
+
+#input-panel.show {
+    transform: translateX(-240px);
 }
 
 #badge-panel::before {
@@ -258,6 +299,16 @@ button {
         page-break-inside: avoid; /* Keep badge on one page */
         margin: 0 auto;
         padding: 40px;
+
+        /* CRITICAL: Reset all transforms */
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+        position: static !important;
+        
+        /* Center on page */
+        width: fit-content;
+        max-width: 100%;
     }
 
     /* Ensure badge content is visible */

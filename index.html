@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR-Code Generator</title>
 </head>
+
 <body>
     <div class="container" id="container">
         <div id="errors"></div>
@@ -20,7 +22,6 @@
 
             <button id="cancel">Reset</button>
             <button id="create">Create</button>
-
         </div>
 
         <div id="badge-panel">
@@ -32,14 +33,14 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-    
+
     <script>
 
         function validateEmail(email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailRegex.test(email);
         }
-        
+
         function validateName(name) {
             const trimmed = name.trim();
 
@@ -50,10 +51,10 @@
             const parts = trimmed.split(/\s+/);
 
             if (parts.length < 2) {
-                return { valid: false, error: "Enter both first and last name"};
+                return { valid: false, error: "Enter both first and last name" };
             }
 
-            return { valid: true};
+            return { valid: true };
         }
 
         function validateTwitter(twitter) {
@@ -135,26 +136,26 @@
             const email = document.getElementById('email').value;
             const twitter = document.getElementById('twitter').value;
             const github = document.getElementById('github').value;
-            
+
             // Build vCard
             let vcard = 'BEGIN:VCARD\r\n';
             vcard += 'VERSION:3.0\r\n';
             vcard += `FN:${name}\r\n`;
             vcard += `EMAIL:${email}\r\n`;
-            
+
             if (twitter) {
                 vcard += `URL:https://twitter.com/${twitter.replace('@', '')}\r\n`;
             }
-            
+
             if (github) {
                 vcard += `URL:https://github.com/${github}\r\n`;
             }
-            
+
             vcard += 'END:VCARD\r\n';
-            
+
             console.log('Generating QR for:', vcard);
             console.log('Length:', vcard.length);
-            
+
             // Update badge display
             document.getElementById('badge-name').textContent = name;
             document.getElementById('badge-email').textContent = email;
@@ -162,7 +163,7 @@
             // Clear previous QR
             const qrcodeDiv = document.getElementById('qrcode');
             qrcodeDiv.innerHTML = '';
-            
+
             // Generate QR with canvas (better compatibility)
             const canvas = document.createElement('canvas');
             qrcodeDiv.appendChild(canvas);
@@ -171,24 +172,24 @@
                 const qr = qrcode(0, 'M'); // type 0 = auto, error correction M
                 qr.addData(vcard);
                 qr.make();
-                
+
                 // Render as image (cell size 5)
                 const qrcodeDiv = document.getElementById('qrcode');
                 qrcodeDiv.innerHTML = qr.createImgTag(5);
-                
+
                 console.log('QR generated successfully!');
-                
+
                 // Show badge
                 document.getElementById('badge-panel').style.display = 'flex';
                 document.getElementById('print').disabled = false;
-                
+
             } catch (error) {
                 console.error('QR generation failed:', error);
                 alert('Failed to generate QR: ' + error.message);
             }
         }
 
-        document.getElementById('create').addEventListener('click', function(e)  {
+        document.getElementById('create').addEventListener('click', function (e) {
             e.preventDefault();
             const badgePanel = document.getElementById('badge-panel');
             const inputPanel = document.getElementById('input-panel');
@@ -209,7 +210,7 @@
             inputPanel.classList.add('show');
         })
 
-        document.getElementById('cancel').addEventListener('click', function() {
+        document.getElementById('cancel').addEventListener('click', function () {
 
             const badgePanel = document.getElementById('badge-panel');
             const inputPanel = document.getElementById('input-panel');
@@ -227,14 +228,14 @@
                 container.classList.remove('has-badge');
             }, 400);
 
-        showErrors([]);
+            showErrors([]);
         });
-        
-        document.getElementById('print').addEventListener('click', function() {
+
+        document.getElementById('print').addEventListener('click', function () {
             window.print();
         });
-        
-        document.getElementById('twitter').addEventListener('blur', function() {
+
+        document.getElementById('twitter').addEventListener('blur', function () {
             const value = this.value.trim();
             if (value && !value.startsWith('@')) {
                 this.value = '@' + value;
@@ -242,4 +243,5 @@
         });
     </script>
 </body>
+
 </html>
